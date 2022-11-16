@@ -8,6 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
+
 //@ExtendWith(TestExecutionExtension.class)
 public class ITFactorialTest {
 
@@ -40,7 +44,8 @@ public class ITFactorialTest {
         //when
         long result = expertCalculator.factorial(0);
         //then
-        System.out.println(result);
+        assertThat(result, is(1L));
+
     }
 
     @Test
@@ -49,7 +54,7 @@ public class ITFactorialTest {
         //when
         long result = expertCalculator.factorial(1);
         //then
-        System.out.println(result);
+        assertThat(result, is(1L));
     }
 
     @Test
@@ -58,17 +63,17 @@ public class ITFactorialTest {
         //when
         long result = expertCalculator.factorial(-4);
         //then
-        System.out.println(result);
+        assertThat(result, is(0L));
     }
 
     @ParameterizedTest
-    @CsvSource({"4","10", "20"})
-    public void calculateFactorialFromNumberBiggerThan1(int n){
+    @CsvSource({"4, 24","10, 3628800", "20, 2432902008176640000"})
+    public void calculateFactorialFromNumberBiggerThan1(int n, long expected){
 
         //when
         long result = expertCalculator.factorial(n);
         //then
-        System.out.println(result);
+        assertThat(result, is(expected));
 
     }
 
