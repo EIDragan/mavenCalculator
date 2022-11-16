@@ -14,10 +14,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 @ExtendWith(TestExecutionExtension.class)
 public class CalculatorTest {
     private BasicOperations basicCalculator;
-
 
     @BeforeAll
     public static void setUpAllTests() {
@@ -43,22 +46,19 @@ public class CalculatorTest {
     @Tags({@Tag("smoke"), @Tag("ui"),})
     @ParameterizedTest
     @MethodSource("numberProvider")
-    public void shouldAddNumbersGivenOperand0(int a, int b) {
-
-        //GIVEN
-        BasicOperations basicCalculator = new Basic();
+    public void shouldAddNumbersGivenOperand0(int a, int b, long expected) {
 
         //WHEN
         long result = basicCalculator.add(a, b);
 
         //THEN
-        System.out.println(result);
+        assertThat(result, is(expected));
     }
 
     public static List<Arguments> numberProvider() {
         List<Arguments> argumentsList = new ArrayList<>();
-        argumentsList.add(Arguments.of(0, 2));
-        argumentsList.add(Arguments.of(2, 0));
+        argumentsList.add(Arguments.of(0, 2, 2));
+        argumentsList.add(Arguments.of(2, 0, 2));
         return argumentsList;
     }
 
@@ -69,53 +69,57 @@ public class CalculatorTest {
         //GIVEN
 
         //WHEN
-        long result = basicCalculator.add(-3, -2);
+        Long result = basicCalculator.add(-3, -2);
         //THEN
-        System.out.println(result);
+        assertEquals(-5L, result);
+        assertTrue(result.equals(-5L));
 
     }
 
+    //BUG Found: JIRA - 187107
     @Tags({@Tag("smoke"), @Tag("api"),})
     @Test
+    @DisplayName( "Test that adds a big number as: MAX INT" )
     public void shouldAddBigNumbers() {
-        //GIVEN
 
-        //WHEN
-        long result = basicCalculator.add(Integer.MAX_VALUE, 1);
-        //THEN
-        System.out.println(result);
+        assertThrows(AssertionError.class, () -> {
+
+            //WHEN
+            Long result = basicCalculator.add(Integer.MAX_VALUE, 1);
+            //THEN
+            assertThat(result, is(Integer.MAX_VALUE + 1L));
+            assertThat(result, notNullValue());
+            assertThat(result, lessThan(0L));
+        });
     }
 
     @Test
     public void shouldAddNoOperands() {
-        //GIVEN
 
         //WHEN
         long result = basicCalculator.add();
         //THEN
-        System.out.println(result);
+        assertThat(result, is(0L));
     }
 
     @Test
     public void shouldAddOneOperand() {
-        //GIVEN
 
         //WHEN
         long result = basicCalculator.add(1999);
         //THEN
-        System.out.println(result);
+        assertThat(result, is(1999L));
     }
 
     @ParameterizedTest
-    @CsvSource({"1,2,3,4", "-1,+1,1,1"})
+    @CsvSource({"1,2,3,4,10", "-1,+1,1,1,2"})
     @CsvFileSource(resources = "/numberSource.csv")
-    public void shouldAddMoreThanTwoOperands(int a1, int a2, int a3, int a4) {
-        //GIVEN
+    public void shouldAddMoreThanTwoOperands(int a1, int a2, int a3, int a4, Long expected) {
 
         //WHEN
         long result = basicCalculator.add(a1, a2, a3, a4);
         //THEN
-        System.out.println(result);
+        assertThat(result, is(expected));
     }
 
 }
